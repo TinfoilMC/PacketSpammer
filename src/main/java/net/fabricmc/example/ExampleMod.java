@@ -1,21 +1,20 @@
 package net.fabricmc.example;
 
 import net.fabricmc.api.ModInitializer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.network.packet.s2c.play.ParticleS2CPacket;
+import net.minecraft.particle.ParticleTypes;
 
 public class ExampleMod implements ModInitializer {
-	// This logger is used to write text to the console and the log file.
-	// It is considered best practice to use your mod id as the logger's name.
-	// That way, it's clear which mod wrote info, warnings, and errors.
-	public static final Logger LOGGER = LoggerFactory.getLogger("modid");
-
-	@Override
-	public void onInitialize() {
-		// This code runs as soon as Minecraft is in a mod-load-ready state.
-		// However, some things (like resources) may still be uninitialized.
-		// Proceed with mild caution.
-
-		LOGGER.info("Hello Fabric world!");
-	}
+    @Override
+    public void onInitialize() {
+        ServerTickEvents.START_SERVER_TICK.register(server -> {
+            server.getPlayerManager().getPlayerList().forEach(p -> {
+                var packet = new ParticleS2CPacket(ParticleTypes.FIREWORK, false, 0, 0, 0, 0, 0, 0, 0, 1);
+                for (int i = 0; i < 1000; i++) {
+                    p.networkHandler.sendPacket(packet);
+                }
+            });
+        });
+    }
 }
